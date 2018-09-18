@@ -15,7 +15,8 @@ class App extends Component {
                 filter : {
                   name : ' ',
                   status : -1
-                }
+                },
+                keyword : ' '
             }
             this.onToggleForm=this.onToggleForm.bind(this);
             this.onCloseForm=this.onCloseForm.bind(this);
@@ -129,8 +130,14 @@ class App extends Component {
           }
          })
         }
+
+        onSearch = (keyword) => {
+          this.setState({
+            keyword : keyword
+          })
+        }
       render() {
-        var {tasks, isDisplayForm, taskEditing, filter } = this.state; //giong voi var tasks = this.state.tasks
+        var {tasks, isDisplayForm, taskEditing, filter, keyword } = this.state; //giong voi var tasks = this.state.tasks
         if(filter){
           if(filter.name){
             tasks = tasks.filter( (task)=> {
@@ -145,6 +152,11 @@ class App extends Component {
               }
             });
         }
+        if(keyword){
+          tasks = tasks.filter( (task)=> {
+              return task.name.toLowerCase().indexOf(keyword) !== -1;
+        });
+      }
         var elmTaskForm = isDisplayForm  ? <TaskForm 
                                                                             onSubmit_props = { this.onSubmit} 
                                                                             onCloseForm={ this.onCloseForm } 
@@ -173,7 +185,7 @@ class App extends Component {
 
                             {/*Search -Sort */}
                             <div className="row mt-15">
-                                <Control />
+                                <Control onSearch = { this.onSearch }/>
                                 {/*List*/}
                                 <div className="row" >
                                     <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12 mt-15" >
