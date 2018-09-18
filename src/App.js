@@ -10,7 +10,8 @@ class App extends Component {
             super(props);
             this.state={
                 tasks: [],
-                isDisplayForm : false
+                isDisplayForm : false,
+                taskEditing : null
             }
             this.onToggleForm=this.onToggleForm.bind(this);
             this.onCloseForm=this.onCloseForm.bind(this);
@@ -32,28 +33,95 @@ class App extends Component {
         generateID(){
             return this.s4() + this.s4()+ '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + this.s4()  ;
         }
+
         onToggleForm(){
             this.setState({
+                isDisplayForm: true,
+                taskEditing : null
+            });
+        }
+
+        onShowForm(){
+             this.setState({
                 isDisplayForm: true
             });
         }
+
         onCloseForm(){
             this.setState({
                 isDisplayForm: false
             });
         }
-        onSubmit=(data) => {
+
+        onSubmit = (data) => {
             var { tasks } = this.state;
-            data.id = this.generateID();
-            tasks.push(data);
+            if(data.id === ' ' ){
+                data.id = this.generateID();
+                tasks.push(data);
+            }else{
+              //Editing
+                var index = this.findIndex(data.id);
+                tasks[index] = data;
+            }
+            
             this.setState({
-                tasks : tasks
+                tasks : tasks,
+                taskEditing : null
             });
             localStorage.setItem('tasks',JSON.stringify(tasks));
         }
+
+        onUpdateStatus = (id) => {
+            var { tasks } = this.state;
+            var index = this.findIndex(id);
+            if( index !== -1 ){
+                tasks[index].status = !tasks[index].status;
+                this.setState({
+                    tasks : tasks
+                });
+                localStorage.setItem('tasks',JSON.stringify(tasks));
+            }
+        }
+        findIndex= (id ) => {
+            var { tasks } = this.state;
+            var result = -1;
+            tasks.forEach((task,index ) => {
+                if( task.id === id ){
+                    result = index ;
+                }
+            });
+            return result;
+        }
+
+        onDelete = (id ) => {
+            var { tasks } = this.state;
+            var index = this.findIndex(id);
+            if( index !== -1 ){
+                tasks.splice(index, 1);
+                this.setState({
+                    tasks : tasks
+                });
+                localStorage.setItem('tasks',JSON.stringify(tasks));
+            }
+            this.onCloseForm();
+        }
+
+        onUpdate = (id ) => {
+            var { tasks } = this.state;
+            var index = this.findIndex(id);
+            var taskEditing = tasks[index];
+            this.setState({
+                taskEditing : taskEditing
+            });
+            this.onShowForm();
+        } 
       render() {
-        var {tasks, isDisplayForm } = this.state; //giong voi var tasks = this.state.tasks
-        var elmTaskForm = isDisplayForm  ? <TaskForm onSubmit_props = { this.onSubmit} onCloseForm={ this.onCloseForm } /> : '';
+        var {tasks, isDisplayForm, taskEditing } = this.state; //giong voi var tasks = this.state.tasks
+        var elmTaskForm = isDisplayForm  ? <TaskForm 
+                                                                            onSubmit_props = { this.onSubmit} 
+                                                                            onCloseForm={ this.onCloseForm } 
+                                                                            task = { taskEditing }
+                                                                    /> : ' ';
             return (
                 <div className="container">
                     <div className="text-center">
@@ -74,14 +142,19 @@ class App extends Component {
                                 <span className="fa fa-plus mr-5" ></span>Thêm Công Việc
                             </button>
                             &nbsp;
-                            
+
                             {/*Search -Sort */}
                             <div className="row mt-15">
                                 <Control />
                                 {/*List*/}
                                 <div className="row" >
                                     <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12 mt-15" >
-                                        <TaskList tasks_props ={ tasks} />
+                                        <TaskList 
+                                            tasks_props ={ tasks} 
+                                            onUpdateStatus_props = { this.onUpdateStatus } 
+                                            onDelete = {this.onDelete }
+                                            onUpdate = { this.onUpdate }
+                                        />
                                     </div>
                                 </div>
                             </div>                          
