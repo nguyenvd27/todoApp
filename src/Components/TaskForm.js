@@ -5,7 +5,7 @@ class TaskForm extends Component {
     constructor(props){
         super(props);
         this.state = {
-            id : ' ',
+            id : '',
             name : '',
             status : false
         }
@@ -57,7 +57,7 @@ class TaskForm extends Component {
             });
         } else if(!nextProps.task){
             this.setState({
-                 id : ' ',
+                 id : '',
                  name : '',
                  status : false
             });

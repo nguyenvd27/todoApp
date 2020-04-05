@@ -62,7 +62,7 @@ class App extends Component {
 
         onSubmit = (data) => {
             var { tasks } = this.state;
-            if(data.id === ' ' ){
+            if(data.id === '' ){
                 data.id = this.generateID();
                 tasks.push(data);
             }else{
